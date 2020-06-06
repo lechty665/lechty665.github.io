@@ -21,3 +21,15 @@ html,
 .title {
     font-size: 3rem;
 }
+
+#terminal div {
+    color: gray;
+}
+
+#terminal div.out {
+    color: red;
+}
+
+#terminal div.in {
+    color: blue;
+}
