@@ -10,47 +10,45 @@ window.onload = () => {
           console.log('Registrierung fehlgeschlagen mit ' + error);
         });
     };
-
-    //if ('serviceWorker' in navigator) {
-    //    navigator.serviceWorker.register('./sw.js');
-    //}
 }
 
-// Получение ссылок на элементы UI
+
 let connectButton = document.getElementById('connect');
 let disconnectButton = document.getElementById('disconnect');
 let terminalContainer = document.getElementById('terminal');
+let mainViewContainer = document.getElementById('mainView');
 let sendForm = document.getElementById('send-form');
 let inputField = document.getElementById('input');
 
-// Подключение к устройству при нажатии на кнопку Connect
+
 connectButton.addEventListener('click', function() {
   connect();
 });
 
-// Отключение от устройства при нажатии на кнопку Disconnect
+
 disconnectButton.addEventListener('click', function() {
   disconnect();
 });
 
-// Обработка события отправки формы
+
 sendForm.addEventListener('submit', function(event) {
-  event.preventDefault(); // Предотвратить отправку формы
-  send(inputField.value); // Отправить содержимое текстового поля
-  inputField.value = '';  // Обнулить текстовое поле
-  inputField.focus();     // Вернуть фокус на текстовое поле
+  event.preventDefault(); //
+  send(inputField.value); //
+  inputField.value = '';  //
+  inputField.focus();     //
 });
 
-// Кэш объекта выбранного устройства
+
 let deviceCache = null;
 
-// Кэш объекта характеристики
-let characteristicCache = null;
 
-// Промежуточный буфер для входящих данных
+let characteristicCache = null;
+let characteristicWrite = null;
+
+
 let readBuffer = '';
 
-// Запустить выбор Bluetooth устройства и подключиться к выбранному
+
 function connect() {
   return (deviceCache ? Promise.resolve(deviceCache) :
       requestBluetoothDevice()).
@@ -59,12 +57,14 @@ function connect() {
       catch(error => log(error));
 }
 
-// Запрос выбора Bluetooth устройства
+
 function requestBluetoothDevice() {
   log('Requesting bluetooth device...');
 
   return navigator.bluetooth.requestDevice({
-    filters: [{services: [0x0001]}],
+    acceptAllDevices: true,
+    optionalServices: ['6e400001-c352-11e5-953d-0002a5d5c51b']  
+    //filters: [{services: [0x0001]}],
   }).
       then(device => {
         log('"' + device.name + '" bluetooth device selected');
@@ -76,7 +76,7 @@ function requestBluetoothDevice() {
       });
 }
 
-// Обработчик разъединения
+
 function handleDisconnection(event) {
   let device = event.target;
 
@@ -88,7 +88,7 @@ function handleDisconnection(event) {
       catch(error => log(error));
 }
 
-// Подключение к определенному устройству, получение сервиса и характеристики
+
 function connectDeviceAndCacheCharacteristic(device) {
   if (device.gatt.connected && characteristicCache) {
     return Promise.resolve(characteristicCache);
@@ -100,12 +100,12 @@ function connectDeviceAndCacheCharacteristic(device) {
       then(server => {
         log('GATT server connected, getting service...');
 
-        return server.getPrimaryService(0x0001);
+        return server.getPrimaryService('6e400001-c352-11e5-953d-0002a5d5c51b');
       }).
       then(service => {
         log('Service found, getting characteristic...');
 
-        return service.getCharacteristic(0x0003);
+        return service.getCharacteristic('6e400003-c352-11e5-953d-0002a5d5c51b');
       }).
       then(characteristic => {
         log('Characteristic found');
@@ -115,7 +115,7 @@ function connectDeviceAndCacheCharacteristic(device) {
       });
 }
 
-// Включение получения уведомлений об изменении характеристики
+
 function startNotifications(characteristic) {
   log('Starting notifications...');
 
@@ -127,11 +127,18 @@ function startNotifications(characteristic) {
       });
 }
 
-// Получение данных
-function handleCharacteristicValueChanged(event) {
-  let value = new TextDecoder().decode(event.target.value);
 
-  for (let c of value) {
+function handleCharacteristicValueChanged(event) {
+    //alert(JSON.stringify(event, null, 4));
+    //console.log(event.target.value.buffer.byteLength);
+    //console.log(event.target.value.buffer);
+    let z = new Uint8Array(event.target.value.buffer, 1, event.target.value.buffer.byteLength-1);
+    console.log(z);
+    let value = new TextDecoder('iso-8859-2').decode(z);
+    console.log(value);
+    receive(value);
+    mainViewContainer.innerHTML = value;
+  /*for (let c of value) {
     if (c === '\n') {
       let data = readBuffer.trim();
       readBuffer = '';
@@ -143,21 +150,21 @@ function handleCharacteristicValueChanged(event) {
     else {
       readBuffer += c;
     }
-  }
+  }*/
 }
 
-// Обработка полученных данных
+
 function receive(data) {
   log(data, 'in');
 }
 
-// Вывод в терминал
+
 function log(data, type = '') {
   terminalContainer.insertAdjacentHTML('beforeend',
       '<div' + (type ? ' class="' + type + '"' : '') + '>' + data + '</div>');
 }
 
-// Отключиться от подключенного устройства
+
 function disconnect() {
   if (deviceCache) {
     log('Disconnecting from "' + deviceCache.name + '" bluetooth device...');
@@ -183,7 +190,7 @@ function disconnect() {
   deviceCache = null;
 }
 
-// Отправить данные подключенному устройству
+
 function send(data) {
   data = String(data);
 
@@ -211,7 +218,7 @@ function send(data) {
   log(data, 'out');
 }
 
-// Записать значение в характеристику
+
 function writeToCharacteristic(characteristic, data) {
   characteristic.writeValue(new TextEncoder().encode(data));
 }
