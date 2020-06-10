@@ -41,7 +41,7 @@ sendForm.addEventListener('submit', function(event) {
 
 let deviceCache = null;
 
-
+let primService = null;
 let characteristicCache = null;
 let characteristicWrite = null;
 
@@ -104,8 +104,14 @@ function connectDeviceAndCacheCharacteristic(device) {
       }).
       then(service => {
         log('Service found, getting characteristic...');
+        primService = service;
+        return primService.getCharacteristic('6e400002-c352-11e5-953d-0002a5d5c51b');
+      }).
+      then(characteristic => {
+        log('Characteristic found');
+        characteristicWrite = characteristic;
 
-        return service.getCharacteristic('6e400003-c352-11e5-953d-0002a5d5c51b');
+        return primService.getCharacteristic('6e400003-c352-11e5-953d-0002a5d5c51b');
       }).
       then(characteristic => {
         log('Characteristic found');
@@ -194,31 +200,37 @@ function disconnect() {
 function send(data) {
   data = String(data);
 
-  if (!data || !characteristicCache) {
+  if (!data || !characteristicWrite) {
     return;
   }
 
-  data += '\n';
+  //data += '\n';
 
-  if (data.length > 20) {
+  /*if (data.length > 20) {
     let chunks = data.match(/(.|[\r\n]){1,20}/g);
 
-    writeToCharacteristic(characteristicCache, chunks[0]);
+    writeToCharacteristic(characteristicWrite, chunks[0]);
 
     for (let i = 1; i < chunks.length; i++) {
       setTimeout(() => {
-        writeToCharacteristic(characteristicCache, chunks[i]);
+        writeToCharacteristic(characteristicWrite, chunks[i]);
       }, i * 100);
     }
   }
-  else {
-    writeToCharacteristic(characteristicCache, data);
-  }
+  else {*/
+    writeToCharacteristic(characteristicWrite, data);
+  //}
 
   log(data, 'out');
 }
 
 
 function writeToCharacteristic(characteristic, data) {
-  characteristic.writeValue(new TextEncoder().encode(data));
+    let databuff =  new TextEncoder().encode(data);
+    let payload = new Uint8Array(databuff.length + 1);
+    payload.fill(1);
+    //payload.set(1,0);
+    payload.set(databuff, 1);
+    console.log(payload);
+    characteristic.writeValue(payload);
 }
