@@ -50,6 +50,7 @@ let readBuffer = '';
 
 
 function connect() {
+  navigator.vibrate(1000);
   return (deviceCache ? Promise.resolve(deviceCache) :
       requestBluetoothDevice()).
       then(device => connectDeviceAndCacheCharacteristic(device)).
