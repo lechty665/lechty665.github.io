@@ -109,13 +109,13 @@ function connectDeviceAndCacheCharacteristic(device) {
         return primService.getCharacteristic('6e400002-c352-11e5-953d-0002a5d5c51b');
       }).
       then(characteristic => {
-        log('Characteristic found');
+        log('Characteristic write found');
         characteristicWrite = characteristic;
 
         return primService.getCharacteristic('6e400003-c352-11e5-953d-0002a5d5c51b');
       }).
       then(characteristic => {
-        log('Characteristic found');
+        log('Characteristic notify found');
         characteristicCache = characteristic;
 
         return characteristicCache;
@@ -139,12 +139,22 @@ function handleCharacteristicValueChanged(event) {
     //alert(JSON.stringify(event, null, 4));
     //console.log(event.target.value.buffer.byteLength);
     //console.log(event.target.value.buffer);
-    let z = new Uint8Array(event.target.value.buffer, 1, event.target.value.buffer.byteLength-1);
-    console.log(z);
-    let value = new TextDecoder('iso-8859-2').decode(z);
-    console.log(value);
-    receive(value);
-    mainViewContainer.innerHTML = value;
+    //let temp = new Int16Array(event.target.value.buffer, 1, 1);
+    let z = new Int8Array(event.target.value.buffer, 1, event.target.value.buffer.byteLength-1);
+    let temp = z[1]*256 + z[0];
+    //console.log(z);
+    //let value = new TextDecoder('iso-8859-2').decode(z);
+    //console.log(value);
+    //receive(temp);
+
+    let htm = parseFloat(temp/10).toFixed(1) + " °C";
+    if(z[2] > 0 && z[3] > 0){
+      htm += "<div id='myProgress'> <div id='myBarRed' style='width: "+z[2]+"%;'>"+z[2]+"% </div> </div>";
+    }else if(z[2] > 0 && z[4] > 0){
+      htm += "<div id='myProgress'> <div id='myBarBlue' style='width: "+z[2]+"%;'>"+z[2]+"% </div> </div>";
+    }
+
+    mainViewContainer.innerHTML = htm;//parseFloat(temp/10).toFixed(1) + " °C";
   /*for (let c of value) {
     if (c === '\n') {
       let data = readBuffer.trim();
@@ -166,9 +176,13 @@ function receive(data) {
 }
 
 
-function log(data, type = '') {
+function logToHtml(data, type = '') {
   terminalContainer.insertAdjacentHTML('beforeend',
       '<div' + (type ? ' class="' + type + '"' : '') + '>' + data + '</div>');
+}
+
+function log(data, type = '') {
+  console.log(data);
 }
 
 

@@ -14,8 +14,10 @@ html,
   
 /* Center the content in the browser window */
 .container {
+    width:170px;
     margin: auto;
     text-align: center;
+    /*border:1px solid black;*/
 }
   
 .title {
@@ -32,4 +34,34 @@ html,
 
 #terminal div.in {
     color: blue;
+}
+
+#connect {
+    color: green;
+    height: 10%;
+}
+#disconnect {
+    color: red;
+    height: 10%;
+}
+
+#myProgress {
+    width: 100%;
+    background-color: lightgrey;
+}
+  
+#myBarBlue {
+    font-size: 1rem;
+    text-align: center;
+    height: 30px;
+    background-color: blue;
+    line-height: 30px;
+}
+
+#myBarRed {
+    font-size: 1rem;
+    text-align: center;
+    height: 30px;
+    background-color: red;
+    line-height: 30px;
 }
