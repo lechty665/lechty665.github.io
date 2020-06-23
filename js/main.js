@@ -209,22 +209,9 @@ function disconnect() {
   deviceCache = null;
 }
 
-function httpGet(theUrl)
-{
-    var xmlHttp = new XMLHttpRequest();
-    
-    xmlHttp.open( "GET", theUrl, false ); // false for synchronous request
-    xmlHttp.send( null );
-    return xmlHttp.responseText;
-}
-
 
 function send(data) {
   data = String(data);
-
-  console.log(httpGet('https://www.google.de'));
-
-
 
   if (!data || !characteristicWrite) {
     return;
