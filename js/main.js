@@ -12,7 +12,6 @@ window.onload = () => {
     };
 }
 
-
 let connectButton = document.getElementById('connect');
 let disconnectButton = document.getElementById('disconnect');
 let terminalContainer = document.getElementById('terminal');
@@ -210,9 +209,22 @@ function disconnect() {
   deviceCache = null;
 }
 
+function httpGet(theUrl)
+{
+    var xmlHttp = new XMLHttpRequest();
+    
+    xmlHttp.open( "GET", theUrl, false ); // false for synchronous request
+    xmlHttp.send( null );
+    return xmlHttp.responseText;
+}
+
 
 function send(data) {
   data = String(data);
+
+  console.log(httpGet('http://www.google.de'));
+
+
 
   if (!data || !characteristicWrite) {
     return;
