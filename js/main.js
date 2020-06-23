@@ -222,7 +222,7 @@ function httpGet(theUrl)
 function send(data) {
   data = String(data);
 
-  console.log(httpGet('http://www.google.de'));
+  console.log(httpGet('https://www.google.de'));
 
 
 
