@@ -117,7 +117,6 @@ function connectDeviceAndCacheCharacteristic(device) {
       then(characteristic => {
         log('Characteristic notify found');
         characteristicCache = characteristic;
-
         return characteristicCache;
       });
 }
