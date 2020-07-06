@@ -19,6 +19,20 @@ let mainViewContainer = document.getElementById('mainView');
 let sendForm = document.getElementById('send-form');
 let inputField = document.getElementById('input');
 
+let slider = document.getElementById("myRange");
+let sliderOutput = document.getElementById("slideout");
+
+sliderOutput.innerHTML = slider.value;
+slider.oninput = function() {
+  sliderOutput.innerHTML = this.value;
+  if(deviceCache == null || !characteristicWrite)return;
+  let payload = new Uint8Array(3);
+  payload[0] = 1;//must be 1
+  payload[1] = 1;//id for Helligkeit
+  payload[2] = this.value;
+  console.log(payload);
+  characteristicWrite.writeValue(payload);
+}
 
 connectButton.addEventListener('click', function() {
   navigator.vibrate(1000);
@@ -153,6 +167,9 @@ function handleCharacteristicValueChanged(event) {
     }
 
     mainViewContainer.innerHTML = htm;//parseFloat(temp/10).toFixed(1) + " °C";
+
+    slider.value = z[5];
+    sliderOutput.innerHTML = slider.value;
   /*for (let c of value) {
     if (c === '\n') {
       let data = readBuffer.trim();
