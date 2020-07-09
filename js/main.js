@@ -12,15 +12,21 @@ window.onload = () => {
     };
 }
 
-let connectButton = document.getElementById('connect');
-let disconnectButton = document.getElementById('disconnect');
-let terminalContainer = document.getElementById('terminal');
-let mainViewContainer = document.getElementById('mainView');
-let sendForm = document.getElementById('send-form');
-let inputField = document.getElementById('input');
+let bleButton = document.getElementById('BleConnectEvent');
+let mainTempViewContainer = document.getElementById('mainTempView');
+//let sendForm = document.getElementById('send-form');
+//let inputField = document.getElementById('input');
 
 let slider = document.getElementById("myRange");
 let sliderOutput = document.getElementById("slideout");
+
+let deviceCache = null;
+
+let primService = null;
+let characteristicCache = null;
+let characteristicWrite = null;
+let readBuffer = '';
+
 
 sliderOutput.innerHTML = slider.value;
 slider.oninput = function() {
@@ -34,33 +40,24 @@ slider.oninput = function() {
   characteristicWrite.writeValue(payload);
 }
 
-connectButton.addEventListener('click', function() {
-  navigator.vibrate(1000);
-  connect();
+bleButton.addEventListener('click', function() {
+  //navigator.vibrate(1000);
+  if(deviceCache == null){
+    connect();
+  }else{
+    disconnect();
+  }
 });
 
 
-disconnectButton.addEventListener('click', function() {
-  disconnect();
-});
-
-
-sendForm.addEventListener('submit', function(event) {
+/*sendForm.addEventListener('submit', function(event) {
   event.preventDefault(); //
   send(inputField.value); //
   inputField.value = '';  //
   inputField.focus();     //
-});
+});*/
 
 
-let deviceCache = null;
-
-let primService = null;
-let characteristicCache = null;
-let characteristicWrite = null;
-
-
-let readBuffer = '';
 
 
 function connect() {
@@ -100,6 +97,7 @@ function handleDisconnection(event) {
   connectDeviceAndCacheCharacteristic(device).
       then(characteristic => startNotifications(characteristic)).
       catch(error => log(error));
+
 }
 
 
@@ -109,6 +107,7 @@ function connectDeviceAndCacheCharacteristic(device) {
   }
 
   log('Connecting to GATT server...');
+  bleButton.innerHTML = "bluetooth_disabled";
 
   return device.gatt.connect().
       then(server => {
@@ -130,6 +129,10 @@ function connectDeviceAndCacheCharacteristic(device) {
       then(characteristic => {
         log('Characteristic notify found');
         characteristicCache = characteristic;
+        return characteristicCache;
+      }).
+      then(characteristic =>{
+        bleButton.innerHTML = "bluetooth_connected";
         return characteristicCache;
       });
 }
@@ -166,7 +169,7 @@ function handleCharacteristicValueChanged(event) {
       htm += "<div id='myProgress'> <div id='myBarBlue' style='width: "+z[2]+"%;'>"+z[2]+"% </div> </div>";
     }
 
-    mainViewContainer.innerHTML = htm;//parseFloat(temp/10).toFixed(1) + " °C";
+    mainTempViewContainer.innerHTML = htm;//parseFloat(temp/10).toFixed(1) + " °C";
 
     slider.value = z[5];
     sliderOutput.innerHTML = slider.value;
@@ -188,12 +191,6 @@ function handleCharacteristicValueChanged(event) {
 
 function receive(data) {
   log(data, 'in');
-}
-
-
-function logToHtml(data, type = '') {
-  terminalContainer.insertAdjacentHTML('beforeend',
-      '<div' + (type ? ' class="' + type + '"' : '') + '>' + data + '</div>');
 }
 
 function log(data, type = '') {
@@ -224,6 +221,7 @@ function disconnect() {
   }
 
   deviceCache = null;
+  bleButton.innerHTML = "bluetooth_disabled";
 }
 
 

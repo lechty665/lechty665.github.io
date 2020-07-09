@@ -2,8 +2,8 @@
 <html lang="de">
 <head>
     <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>SFD Thermostat</title>
-    <link rel="stylesheet" href="css/style.css">
     <link rel="manifest" href="/manifest.json">
     <link rel="icon" href="favicon.ico" type="image/x-icon" />  
     <link rel="apple-touch-icon" href="images/hello-icon-152.png">
@@ -14,31 +14,42 @@
     <meta name="apple-mobile-web-app-title" content="Hello World"> 
     <meta name="msapplication-TileImage" content="images/hello-icon-144.png">  
     <meta name="msapplication-TileColor" content="#FFFFFF">
+    <!-- materialize icons, css & js -->
+    <link type="text/css" href="/css/materialize.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link type="text/css" href="/css/style.css" rel="stylesheet">
+    <script type="text/javascript" src="/js/materialize.min.js"></script>
 </head>
-<body class="fullscreen">
+<body class="grey lighten-2">
     
+     <!-- top nav -->
+    <nav class="z-depth-0">
+        <div class="nav-wrapper container">
+            <a href="/"><span>STUHL</span>REGELSYSTEME</a>
+            <span class="right grey-text text-darken-1">
+            <i id="BleConnectEvent" class="material-icons ble-trigger" data-target="side-menu">bluetooth_disabled</i>
+            </span>
+        </div>
+    </nav>
 
-    <button id="connect" type="button">Connect</button>
-    <button id="disconnect" type="button">Disconnect</button>
-
-    <div class="container">
-        <h1 class="title" id="mainView">SFD</h1>
+      <!-- SFD -->
+    <div class="recipes container grey-text text-darken-1">
+        <div class="card-panel recipe white row">
+            <!-- <img src="/img/dish.png" alt="recipe thumb"> -->
+            <div class="recipe-details">
+                <div class="SFD-temperature" id="mainTempView">SFD</div>
+                <p class="range-field">
+                    <input type="range" name="points" min="0" max="100" class="" id="myRange">
+                </p>
+                <div class="helligkeit" id="slideout">30</div>
+            </div>
+             <div class="recipe-delete">
+                <i class="material-icons">delete_outline</i>
+            </div>
+        </div>
+        
     </div>
 
-    <div class="slidecontainer">
-        <p>Helligkeit: <span id="slideout"></span></p>
-        <input id="myRange" class="slider" type="range" min="0" max="100" value="30">
-    </div>
-
-    <!-- <div id="terminal">
-        <div>Device connection...</div>
-        <div class="out">Outcoming message</div>
-        <div class="in">Incoming message</div>
-    </div> -->
-    <form id="send-form">
-        <input id="input" type="text">
-        <button type="submit">Send</button>
-    </form>
     <script src="js/main.js"></script>
 </body>
 </html>
